@@ -1,12 +1,18 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel  
 from typing import List, Optional
+import uuid
 import shutil
 import os
 
+
 from app.models import AnalysisResponse, RecipeCard
 from app.services.vision import analyze_image_for_ingredients
-from app.services.vector_store import search_recipes
+from app.services.vector_store import search_recipes, get_recipe_by_id
+from app.graph import run_agent
+
 
 app = FastAPI(title="SnapCook API")
 
@@ -16,7 +22,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -73,4 +79,34 @@ async def analyze_food(file: Optional[UploadFile] = File(None),
     return AnalysisResponse(
         detected_ingredients=final_ingredients,
         recipes=recipe_cards
+    )
+    
+class StartCookingRequest(BaseModel):
+    recipe_id: str
+
+class ChatRequest(BaseModel):
+    message: str
+    thread_id: str
+    
+@app.post("/api/start_cooking")
+async def start_cooking(request: StartCookingRequest):
+    recipe_data = get_recipe_by_id(request.recipe_id)
+    if not recipe_data:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    
+    context = f"Title: {recipe_data['title']}\nInstructions: {recipe_data['instructions']}"
+    
+    thread_id = str(uuid.uuid4())
+    
+    return StreamingResponse(
+        run_agent(thread_id, "Please introduce this recipe and help me get started.", context),
+        media_type="text/event-stream",
+        headers={"X-Thread-ID": thread_id} 
+    )
+    
+@app.post("/api/chat")
+async def chat(request: ChatRequest):
+    return StreamingResponse(
+        run_agent(request.thread_id, request.message),
+        media_type="text/event-stream"
     )

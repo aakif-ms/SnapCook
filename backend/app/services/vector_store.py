@@ -32,15 +32,18 @@ def search_recipes(query_text, n_results=5):
     )
     
     cleaned_results = []
-    for i in range(len(results['ids'][0])):
-        item = {
-            "id": results["ids"][0][i],
-            "score": results["distances"][0][i],
-            "ingredients": results["documents"][0][i],
-            "title": results["metadatas"][0][i]["title"],
-            "minutes": results["metadatas"][0][i]["minutes"]
-        }
-        cleaned_results.append(item)
+    if results and results['ids'] and len(results['ids'][0]) > 0:
+        for i in range(len(results['ids'][0])):
+            metadata = results['metadatas'][0][i] 
+            item = {
+                "id": results['ids'][0][i],
+                "score": results['distances'][0][i],
+                "ingredients": results['documents'][0][i],
+                "title": metadata.get('title', 'Untitled'),    
+                "minutes": metadata.get('minutes', 0),         
+                "description": metadata.get('description', 'No description available.'),
+            }
+            cleaned_results.append(item)
     
     return cleaned_results
 
