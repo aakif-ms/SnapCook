@@ -25,7 +25,7 @@ def analyze_image_for_ingredients(image_file):
                 "content": [
                     {"type": "text", "text": "What ingredients are in this image?"},
                     {
-                        "type": "image-url",
+                        "type": "image_url",
                         "image_url" : {
                             "url": f"data:image/jpeg;base64,{base64_image}"
                         }

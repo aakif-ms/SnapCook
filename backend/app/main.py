@@ -26,6 +26,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Thread-ID"],  # This allows frontend to access custom headers
 )
 
 UPLOAD_DIR = "static/uploads"
@@ -44,7 +45,7 @@ async def analyze_food(file: Optional[UploadFile] = File(None),
     if file:
         print(f"Processing image: {file.filename}")
 
-        file_path = os.path.join(UploadFile, file.filename)
+        file_path = os.path.join(UPLOAD_DIR, file.filename)
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         

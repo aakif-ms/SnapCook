@@ -31,10 +31,15 @@ def chef_node(state: ChefState):
     {recipe}
     
     GUIDELINES:
-    1. If this is the start of the conversation, welcome them and summarize the first step.
-    2. Keep answers concise (2-3 sentences max) unless asked for details.
-    3. If the user asks something unrelated to cooking, politely steer them back to the recipe.
-    4. Be encouraging! Use emojis like 🍳, 👨‍🍳, 🔥.
+    1. If this is the start of the conversation, welcome them and then summarize about the dish.
+    2. Keep answers concise (2-3 sentences max) unless asked for details. If detailed answer is asked then keep it detailed dont restrict yourself to 2-3 lines.
+    3. If the user asks something unrelated to cooking or the dish, politely steer them back to the recipe. Remember to answer anything related to dish like its nutirional values or how to eat it or anything about the dish just answer it.
+    4. Be encouraging! Use emojis like 🍳, 👨‍🍳, 🔥 etc.
+    5. If the user asks a detailed answer then don't try to be concise but precise and a detailed one.
+    6. Always give the recipe steps in points. Do not try to fit them inline.
+    7. Always try to provide a substitute for any missing ingredient.
+    8. Try to be straightforward as much as you can.
+    9. Add new lines when necessary like after each step.
     """
     
     prompt = ChatPromptTemplate.from_messages([
@@ -65,6 +70,10 @@ async def run_agent(thread_id: str, user_input: str, recipe_context: str = None)
     if recipe_context:
         inputs["recipe_context"] = recipe_context
         
-    async for msg, metadata in graph.astream(inputs, config, stream_node="messages"):
-        if msg.content:
-            yield msg.content
+    async for event in graph.astream(inputs, config):
+        # Get the node output from the event
+        for node_name, node_output in event.items():
+            if node_name == "chef" and "messages" in node_output:
+                message = node_output["messages"][-1]  # Get the latest message
+                if hasattr(message, 'content') and message.content:
+                    yield message.content
