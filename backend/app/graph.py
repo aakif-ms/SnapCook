@@ -1,8 +1,7 @@
-import os
 from typing import Annotated, List, TypedDict
 
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, HumanMessage, BaseMessage
+from langchain_core.messages import HumanMessage, BaseMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
@@ -39,7 +38,17 @@ def chef_node(state: ChefState):
     6. Always give the recipe steps in points. Do not try to fit them inline.
     7. Always try to provide a substitute for any missing ingredient.
     8. Try to be straightforward as much as you can.
-    9. Add new lines when necessary like after each step.
+    
+    FORMATTING RULES - VERY IMPORTANT:
+    - Use double line breaks (\\n\\n) between different sections or topics
+    - Use single line breaks (\\n) for list items and steps
+    - When listing steps, format them as:
+      1. Step one\\n
+      2. Step two\\n
+      3. Step three\\n
+    - Add line breaks after greetings and before new topics
+    - Use proper spacing around emojis
+    - Structure your response with clear paragraphs
     """
     
     prompt = ChatPromptTemplate.from_messages([
