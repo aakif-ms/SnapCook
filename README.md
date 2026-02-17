@@ -10,6 +10,9 @@ SnapCook is an AI-powered recipe discovery application that helps you find recip
 - ⚡ **Fast & Accurate**: Powered by OpenAI's GPT-4 Vision and embeddings for precise results
 - 📱 **Modern UI**: Clean, responsive interface built with Next.js and TailwindCSS
 
+## Demo Video
+https://github.com/user-attachments/assets/69783d5e-ba1c-432f-8a4c-861b0d7aae41
+
 ## 🏗️ Architecture
 
 SnapCook consists of three main components:
